@@ -115,7 +115,7 @@ func repo_default_config() *viper.Viper {
 	return myViper
 }
 
-func repo_find(path string, required bool) (Repo, error) {
+func Repo_find(path string, required bool) (Repo, error) {
 	abs_path, err := filepath.Abs(path)
 	if err != nil {
 		return Repo{}, err
@@ -147,5 +147,5 @@ func repo_find(path string, required bool) (Repo, error) {
 			return Repo{}, nil
 		}
 	}
-	return repo_find(parent, required)
+	return Repo_find(parent, required)
 }
