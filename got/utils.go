@@ -1,6 +1,7 @@
 package got
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -109,4 +110,39 @@ func repo_default_config() *viper.Viper {
 	myViper.Set("core.bare", false)
 
 	return myViper
+}
+
+func repo_find(path string, required bool) (Repo, error) {
+	abs_path, err := filepath.Abs(path)
+	if err != nil {
+		return Repo{}, err
+	}
+	real_path, err := filepath.EvalSymlinks(abs_path)
+	if err != nil {
+		return Repo{}, err
+	}
+
+	here, err := isDirectory(filepath.Join(real_path, GIT_DIR))
+	if err != nil {
+		return Repo{}, err
+	}
+
+	if here {
+		return NewRepo(real_path, false)
+	}
+
+	parent, err := filepath.EvalSymlinks(filepath.Join(real_path, ".."))
+	if err != nil {
+		return Repo{}, err
+	}
+
+	// Bottom case for recursion If this is true, then we are at the root of the filesystem
+	if parent == real_path {
+		if required {
+			return Repo{}, errors.New("No git repository")
+		} else {
+			return Repo{}, nil
+		}
+	}
+	return repo_find(parent, required)
 }
