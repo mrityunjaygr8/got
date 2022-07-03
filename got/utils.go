@@ -94,7 +94,10 @@ func (r Repo) repo_dir(mkdir bool, path ...string) (string, error) {
 	}
 
 	if mkdir {
-		os.Mkdir(the_path, 0755)
+		err := os.MkdirAll(the_path, 0755)
+		if err != nil {
+			return "", err
+		}
 		return the_path, nil
 	}
 
