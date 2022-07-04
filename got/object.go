@@ -29,6 +29,7 @@ func Object_write(o object, actually_write bool) []byte {
 	result = append(result, data...)
 
 	h := sha1.New()
+	fmt.Fprint(h, result)
 	sha := h.Sum(nil)
 
 	if actually_write {
