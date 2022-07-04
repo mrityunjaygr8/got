@@ -1,6 +1,7 @@
 package got
 
 import (
+	"bufio"
 	"bytes"
 	"compress/zlib"
 	"crypto/sha1"
@@ -108,4 +109,36 @@ func Object_read(repo Repo, sha string) (object, error) {
 
 func Object_find(repo Repo, name string, fmt string, follow bool) string {
 	return name
+}
+func Object_hash(path string, format string, repo Repo) ([]byte, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	data := make([]byte, 0)
+	tmp := make([]byte, 16)
+	reader := bufio.NewReader(f)
+	for {
+		n, err := reader.Read(tmp)
+		if err != nil {
+			if err != io.EOF {
+				log.Fatal(err)
+			}
+			break
+		}
+		data = append(data, tmp[0:n]...)
+	}
+
+	var obj object
+	switch format {
+	case "blob":
+		obj = blob{repo: repo, blobdata: data}
+	default:
+		return nil, fmt.Errorf("Unknown type %s", format)
+	}
+
+	return Object_write(obj, false), nil
+
 }
