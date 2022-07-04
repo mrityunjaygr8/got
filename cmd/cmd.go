@@ -12,7 +12,6 @@ var rootCmd = &cobra.Command{
 	Short: "Got is a test git implementation written in GO",
 	Long:  "Got is a test git implementation written in GO",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("yo")
 	},
 }
 
