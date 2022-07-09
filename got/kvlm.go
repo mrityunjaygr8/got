@@ -33,12 +33,11 @@ func kvlm_parse(raw []byte, start int, dict kvlm) (kvlm, error) {
 	end := start
 
 	for {
-		end = bytes.IndexByte(raw[end+1:], '\n') + end
+		end = bytes.IndexByte(raw[end+1:], '\n') + end + 1
 		if raw[end+1] != ' ' {
 			break
 		}
 	}
-	end = end + 1
 
 	value := bytes.ReplaceAll(raw[spc+1:end], []byte("\n "), []byte("\n"))
 	old, present := dct.Get(key)
