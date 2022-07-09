@@ -110,7 +110,7 @@ func Object_read(repo Repo, sha string) (object, error) {
 	return c, nil
 }
 
-func Object_find(repo Repo, name string, fmt string, follow bool) string {
+func Object_find(repo Repo, name string, format string, follow bool) string {
 	return name
 }
 func Object_hash(path string, format string, repo Repo) ([]byte, error) {
