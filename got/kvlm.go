@@ -17,8 +17,8 @@ func kvlm_parse(raw []byte, start int, dict kvlm) (kvlm, error) {
 		dct = dict
 	}
 
-	spc := bytes.IndexByte(raw[start:], ' ')
-	nl := bytes.IndexByte(raw[start:], '\n')
+	spc := bytes.IndexByte(raw[start:], ' ') + start
+	nl := bytes.IndexByte(raw[start:], '\n') + start
 
 	// base case
 	if (spc < 0) || (nl < spc) {
@@ -33,11 +33,12 @@ func kvlm_parse(raw []byte, start int, dict kvlm) (kvlm, error) {
 	end := start
 
 	for {
-		end = bytes.IndexByte(raw[end+1:], '\n')
+		end = bytes.IndexByte(raw[end+1:], '\n') + end
 		if raw[end+1] != ' ' {
 			break
 		}
 	}
+	end = end + 1
 
 	value := bytes.ReplaceAll(raw[spc+1:end], []byte("\n "), []byte("\n"))
 	old, present := dct.Get(key)
@@ -47,7 +48,7 @@ func kvlm_parse(raw []byte, start int, dict kvlm) (kvlm, error) {
 		dct.Set(key, append(old, value))
 	}
 
-	return dct, nil
+	return kvlm_parse(raw, end+1, dct)
 }
 
 func kvln_serialize(kvlm kvlm) ([]byte, error) {
