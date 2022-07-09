@@ -28,6 +28,10 @@ var catFileCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		fmt.Println(string(obj.Serialize()))
+		out, err := obj.Serialize()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(string(out))
 	},
 }

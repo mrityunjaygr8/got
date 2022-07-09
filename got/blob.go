@@ -5,8 +5,8 @@ type blob struct {
 	repo     Repo
 }
 
-func (b blob) Serialize() []byte {
-	return b.blobdata
+func (b blob) Serialize() ([]byte, error) {
+	return b.blobdata, nil
 }
 func (b blob) Deserialize(data []byte) {
 	b.blobdata = data

@@ -13,14 +13,17 @@ import (
 )
 
 type object interface {
-	Serialize() []byte
+	Serialize() ([]byte, error)
 	Deserialize(data []byte)
 	get_type() []byte
 	get_repo() Repo
 }
 
 func Object_write(o object, actually_write bool) []byte {
-	data := o.Serialize()
+	data, err := o.Serialize()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	result := make([]byte, 0)
 	result = append(result, o.get_type()...)
