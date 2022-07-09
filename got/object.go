@@ -102,6 +102,9 @@ func Object_read(repo Repo, sha string) (object, error) {
 	switch format {
 	case "blob":
 		c = blob{repo: repo, blobdata: raw[y+1:]}
+	case "commit":
+		c = &commit{repo: repo}
+		c.Deserialize(raw[y+1:])
 	default:
 		return nil, fmt.Errorf("Unknown type %s for object %s", format, sha)
 
@@ -138,6 +141,9 @@ func Object_hash(path string, format string, repo Repo) ([]byte, error) {
 	switch format {
 	case "blob":
 		obj = blob{repo: repo, blobdata: data}
+	case "commit":
+		obj := &commit{repo: repo}
+		obj.Deserialize(data)
 	default:
 		return nil, fmt.Errorf("Unknown type %s", format)
 	}
