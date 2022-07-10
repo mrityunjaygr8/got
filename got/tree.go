@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 )
 
 type treeLeaf struct {
@@ -36,7 +35,7 @@ func (t tree) get_repo() Repo {
 	return t.repo
 }
 
-func NewTreeLeaf(mode, path, sha []byte) *treeLeaf {
+func newTreeLeaf(mode, path, sha []byte) *treeLeaf {
 	return &treeLeaf{mode: mode, path: path, sha: sha}
 }
 
@@ -53,7 +52,7 @@ func tree_parse_one(raw []byte, start int) (int, *treeLeaf) {
 
 	sha := []byte(fmt.Sprintf("%x", raw[y+1:y+21]))
 
-	return y + 21, NewTreeLeaf(mode, path, sha)
+	return y + 21, newTreeLeaf(mode, path, sha)
 }
 
 func tree_parse(raw []byte) []treeLeaf {
@@ -84,19 +83,4 @@ func tree_serialize(leaves []treeLeaf) ([]byte, error) {
 	}
 
 	return raw, nil
-}
-
-func Ls_tree(obj object) {
-	if string(obj.get_type()) != "tree" {
-		log.Fatal(errors.New("Not a tree object"))
-	}
-	theTree, _ := obj.(*tree)
-	for _, leaf := range theTree.leafs {
-		mode := strings.Repeat("0", 6-binary.Size(leaf.mode)) + string(leaf.mode)
-		path, err := Object_read(theTree.repo, string(leaf.sha))
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%s %s %s\t%s\n", mode, string(path.get_type()), leaf.sha, leaf.path)
-	}
 }
