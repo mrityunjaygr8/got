@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const GIT_DIR = ".gitmy"
+const GIT_DIR = ".git"
 const CONFIG_FILE_NAME = "config"
 const INITIAL_DESCRIPTION = "Unnamed repository; edit this file 'description' to name the repository.\n"
 const INITIAL_HEAD = "ref: refs/heads/master\n"
