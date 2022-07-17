@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type object interface {
@@ -116,9 +117,56 @@ func Object_read(repo Repo, sha string) (object, error) {
 	return c, nil
 }
 
-func Object_find(repo Repo, name string, format string, follow bool) string {
-	return name
+func Object_find(repo Repo, name string, format string, follow bool) (string, error) {
+	sha, err := object_resolve(repo, name)
+	if err != nil {
+		return "", err
+	}
+
+	if len(sha) > 1 {
+		var many strings.Builder
+		many.WriteString(fmt.Sprintf("Ambiguous reference %s: Candidates are:\n", name))
+		for _, name := range sha {
+			many.WriteString(fmt.Sprintf(" - %s\n", name))
+		}
+
+		return many.String(), nil
+	}
+
+	newSha := sha[0]
+
+	if format == "" {
+		return newSha, nil
+	}
+
+	for {
+		obj, err := Object_read(repo, newSha)
+		if err != nil {
+			return "", err
+		}
+
+		if string(obj.get_type()) == format {
+			return newSha, nil
+		}
+
+		if !follow {
+			return "", nil
+		}
+
+		if string(obj.get_type()) == "tag" {
+			theTag, _ := obj.(*tag)
+			newShaList, _ := theTag.klvm.Get("object")
+			newSha = string(newShaList[0])
+		} else if string(obj.get_type()) == "commit" && format == "tree" {
+			theCommit, _ := obj.(*commit)
+			newShaList, _ := theCommit.klvm.Get("tree")
+			newSha = string(newShaList[0])
+		} else {
+			return "", nil
+		}
+	}
 }
+
 func Object_hash(path string, format string, repo Repo) ([]byte, error) {
 	f, err := os.Open(path)
 	if err != nil {

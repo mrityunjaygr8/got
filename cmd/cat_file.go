@@ -23,7 +23,11 @@ var catFileCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		obj, err := got.Object_read(repo, got.Object_find(repo, args[1], args[0], true))
+		o, err := got.Object_find(repo, args[1], args[0], true)
+		if err != nil {
+			log.Fatal(err)
+		}
+		obj, err := got.Object_read(repo, o)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -4,8 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -148,4 +151,40 @@ func Repo_find(path string, required bool) (Repo, error) {
 		}
 	}
 	return Repo_find(parent, required)
+}
+
+func object_resolve(repo Repo, name string) ([]string, error) {
+	candidates := make([]string, 0)
+	hashRE := regexp.MustCompile("^[0-9A-Fa-f]{4,40}$")
+	trimmedName := strings.TrimSpace(name)
+
+	if trimmedName == "" {
+		return candidates, errors.New("no name provided")
+	}
+
+	if hashRE.Match([]byte(trimmedName)) {
+		lowerName := strings.ToLower(trimmedName)
+		if len(trimmedName) == 40 {
+			candidates = append(candidates, lowerName)
+			return candidates, nil
+		}
+
+		prefix := name[:2]
+		path, err := repo.repo_dir(false, "objects", prefix)
+		if err != nil {
+			return candidates, err
+		}
+		rem := name[2:]
+		files, err := ioutil.ReadDir(path)
+		if err != nil {
+			return candidates, err
+		}
+		for _, file := range files {
+			if strings.HasPrefix(file.Name(), rem) {
+				candidates = append(candidates, fmt.Sprintf("%s%s", prefix, file.Name()))
+			}
+		}
+	}
+
+	return candidates, nil
 }

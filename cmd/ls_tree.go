@@ -23,7 +23,11 @@ var lsTreeCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		obj, err := got.Object_read(repo, got.Object_find(repo, object_id, "tree", false))
+		o, err := got.Object_find(repo, object_id, "tree", false)
+		if err != nil {
+			log.Fatal(err)
+		}
+		obj, err := got.Object_read(repo, o)
 		if err != nil {
 			log.Fatal(err)
 		}

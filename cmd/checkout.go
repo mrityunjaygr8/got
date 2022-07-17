@@ -24,7 +24,11 @@ var checkoutCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		obj, err := got.Object_read(repo, got.Object_find(repo, commit_id, "commit", true))
+		o, err := got.Object_find(repo, commit_id, "commit", true)
+		if err != nil {
+			log.Fatal(err)
+		}
+		obj, err := got.Object_read(repo, o)
 		if err != nil {
 			log.Fatal(err)
 		}
